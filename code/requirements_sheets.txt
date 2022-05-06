@@ -1,0 +1,6 @@
+# Function dependencies, for example:
+# package>=version
+gspread
+pandas-gbq
+pandas
+google-auth
