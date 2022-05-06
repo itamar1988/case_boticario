@@ -1,0 +1,74 @@
+CREATE OR REPLACE PROCEDURE `noted-hangout-346322.procedure.sp_relatorios_gb`()
+
+BEGIN
+CREATE TABLE IF NOT EXISTS `noted-hangout-346322.clean.tb_vendas_tratada_full`   AS
+(
+SELECT 	
+ CAST(ID_MARCA	AS INT64)  AS IdMarca		
+,CAST(MARCA		AS STRING) AS nmMarca		
+,CAST(ID_LINHA	AS INT64)  AS IdLinha		
+,CAST(LINHA		AS STRING) AS nmLinha	
+,PARSE_DATE('%m/%d/%Y', DATA_VENDA) as DATA_VENDA
+,CAST(QTD_VENDA  AS INT64)  AS QtdVenda  
+FROM `noted-hangout-346322.raw.tb_vendas` 
+);
+
+
+CREATE TABLE IF NOT EXISTS `noted-hangout-346322.clean.tb_vendas_ano_mes`  AS
+(
+SELECT 
+FORMAT_DATE("%b %Y", DATA_VENDA ) as ano_mes 
+,sum(QtdVenda) as total_vendas
+from `noted-hangout-346322.clean.tb_vendas_tratada_full` 
+group by 
+ano_mes
+);
+
+
+CREATE TABLE IF NOT EXISTS `noted-hangout-346322.clean.tb_vendas_marca_linha`  AS
+(
+SELECT 
+ IdMarca
+,nmMarca
+,IdLinha
+,nmLinha
+,sum(QtdVenda) as total_vendas
+from `noted-hangout-346322.clean.tb_vendas_tratada_full` 
+group by 
+ IdMarca
+,nmMarca
+,IdLinha
+,nmLinha
+);
+
+
+CREATE TABLE IF NOT EXISTS `noted-hangout-346322.clean.tb_vendas_marca_ano_mes`  AS
+(
+ SELECT 
+ IdMarca
+ ,nmMarca
+ ,FORMAT_DATE("%b %Y", DATA_VENDA ) ano_mes 
+ ,sum(QtdVenda) as total_vendas
+ from `noted-hangout-346322.clean.tb_vendas_tratada_full` 
+ group by 
+ IdMarca
+,nmMarca
+,ano_mes
+);
+
+
+CREATE TABLE IF NOT EXISTS `noted-hangout-346322.clean.tb_vendas_linha_ano_mes`  AS
+(
+SELECT 
+ IdLinha
+,nmLinha
+,FORMAT_DATE("%b %Y", DATA_VENDA ) ano_mes 
+,sum(QtdVenda) as total_vendas
+ from `noted-hangout-346322.clean.tb_vendas_tratada_full` 
+ group by 
+ IdLinha
+,nmLinha
+,ano_mes
+);
+
+END
